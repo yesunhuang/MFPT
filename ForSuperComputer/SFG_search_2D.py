@@ -66,72 +66,76 @@ def SearchForMax(array:list):
 #parameters
 kappa_a=2;kappa_b=2;kappa_c=2
 psi0_l=[0,1,0]
-Ea=1
-g=1
-DeltaB=np.linspace(-40,40,80)
+Ea=np.linspace(0.1,1,10)
+g=2
+DeltaB=np.linspace(-4,4,10)
 tlist=np.linspace(0,20,2000)
 
 #data storage
-data=np.zeros([np.size(DeltaB),9])
+data=np.zeros([np.size(Ea),np.size(DeltaB),9])
 
 #solve for data
 ts=time.time()
-for j in range(0,np.size(DeltaB)):
-    op=BuildOperator_Exact(Ea,DeltaB[j],g)
-    output=mesolve(op['Hamilton'],op['Initial_state'],tlist,op['Collapse'],op['track'])
-    maxIndex=SearchForMax(output.expect[1])
-    data[j][0]=tlist[maxIndex]  #t
-    data[j][1]=output.expect[0][maxIndex]   #Nb
-    data[j][2]=output.expect[1][maxIndex]   #Nc
-    data[j][3]=output.expect[2][maxIndex]   #Na
-    data[j][4]=output.expect[3][maxIndex]/(data[j][1]*data[j][3]) #g2ab
-    data[j][5]=output.expect[4][maxIndex]/(data[j][2]*data[j][3]) #g2ac
-    data[j][6]=output.expect[5][maxIndex]/(data[j][1]*data[j][1]) #g2b
-    data[j][7]=output.expect[6][maxIndex]/(data[j][2]*data[j][2]) #g2c
-    data[j][8]=output.expect[7][maxIndex]/(data[j][3]*data[j][3]) #g2a
+for i in range(0,np.size(Ea)):
+    for j in range(0,np.size(DeltaB)):
+        op=BuildOperator_Exact(Ea[i],DeltaB[j],g)
+        output=mesolve(op['Hamilton'],op['Initial_state'],tlist,op['Collapse'],op['track'])
+        maxIndex=SearchForMax(output.expect[1])
+        data[i][j][0]=tlist[maxIndex]  #t
+        data[i][j][1]=output.expect[0][maxIndex]   #Nb
+        data[i][j][2]=output.expect[1][maxIndex]   #Nc
+        data[i][j][3]=output.expect[2][maxIndex]   #Na
+        data[i][j][4]=output.expect[3][maxIndex]/(data[i][j][1]*data[i][j][3]) #g2ab
+        data[i][j][5]=output.expect[4][maxIndex]/(data[i][j][2]*data[i][j][3]) #g2ac
+        data[i][j][6]=output.expect[5][maxIndex]/(data[i][j][1]*data[i][j][1]) #g2b
+        data[i][j][7]=output.expect[6][maxIndex]/(data[i][j][2]*data[i][j][2]) #g2c
+        data[i][j][8]=output.expect[7][maxIndex]/(data[i][j][3]*data[i][j][3]) #g2a
 te=time.time()
 print('Time cost:'+str(te-ts)+'s')
 
 #save data
-np.savetxt('Data/population_g_'+str(g)+'_Ea_'+str(Ea)+'_DeltaB_'+str(DeltaB[0])+'-'+str(DeltaB[-1])+'.txt',data)
-np.save('Data/population_g_'+str(g)+'_Ea_'+str(Ea)+'_DeltaB_'+str(DeltaB[0])+'-'+str(DeltaB[-1])+'.npy',data)
+#np.savetxt('Data/population_g_'+str(g)+'_Ea_'+str(Ea[0])+'-'+str(Ea[-1])+'_DeltaB_'+str(DeltaB[0])+'-'+str(DeltaB[-1])+'.txt',data)
+np.save('Data/population_g_'+str(g)+'_Ea_'+str(Ea[0])+'-'+str(Ea[-1])+'_DeltaB_'+str(DeltaB[0])+'-'+str(DeltaB[-1])+'.npy',data)
 
 #print population
-fig, axes = plt.subplots(3,1 , figsize=(3,18))
-axes[0].set_xlabel(r'$\Delta_b$')
-axes[1].set_xlabel(r'$\Delta_b$')
-axes[1].set_xlabel(r'$\Delta_b$')
-axes[0].set_ylabel(r'$\langle b^{\dagger}b\rangle$')
-axes[1].set_ylabel(r'$\langle c^{\dagger}c\rangle$')
-axes[2].set_ylabel(r'$\langle a^{\dagger}a\rangle$')   
-axes[0].plot(DeltaB,data[...,0],linestyle='-')
-axes[1].plot(DeltaB,data[...,1],linestyle='-')
-axes[2].plot(DeltaB,data[...,2],linestyle='-')
-fig.savefig('imgs/population_g_'+str(g)+'_Ea_'+str(Ea)+'_DeltaB_'+str(DeltaB[0])+'-'+str(DeltaB[-1])+'.svg',dpi=600,format='svg',bbox_inches='tight')
+fig = plt.figure(figsize=(6,18))
+axes=[]
+axes.append(fig.add_subplot(3, 1, 1))
+axes.append(fig.add_subplot(3, 1, 2))
+axes.append(fig.add_subplot(3, 1, 3))
+ax0=axes[0].contourf(DeltaB,Ea,data[:,:,0],cmap=cm.coolwarm)
+ax1=axes[1].contourf(DeltaB,Ea,data[:,:,1],cmap=cm.coolwarm)
+ax3=axes[2].contourf(DeltaB,Ea,data[:,:,2],cmap=cm.coolwarm)
+ax00=axes[0].contour(DeltaB,Ea,data[:,:,0],ax0.levels)
+ax11=axes[1].contour(DeltaB,Ea,data[:,:,1],ax1.levels)
+ax11=axes[2].contour(DeltaB,Ea,data[:,:,2],ax1.levels)
+#fmt = '%1.2f '
+axes[0].clabel(ax00, ax00.levels, inline=True)
+axes[1].clabel(ax11, ax11.levels, inline=True)
+axes[2].clabel(ax11, ax11.levels, inline=True)
+axes[0].set_xlabel(r'$\Delta_b$');axes[1].set_xlabel(r'$\Delta_b$');axes[2].set_xlabel(r'$\Delta_b$')
+axes[0].set_ylabel(r'$E_a$');axes[1].set_ylabel(r'$E_a$');axes[2].set_ylabel(r'$E_a$')
+bar1=fig.colorbar(ax0,ax=axes[0],pad=0.1)
+bar2=fig.colorbar(ax1,ax=axes[1],pad=0.1)
+bar2=fig.colorbar(ax1,ax=axes[2],pad=0.1)
+fig.savefig('imgs/population_g_'+str(g)+'_Ea_'+str(Ea[0])+'-'+str(Ea[-1])+'_DeltaB_'+str(DeltaB[0])+'-'+str(DeltaB[-1])+'.svg',dpi=600,format='svg',bbox_inches='tight')
 
 #print other data
-fig, axes = plt.subplots(3,2,figsize=(12,18))
-axes[0,0].set_xlabel(r'$\Delta_b$')
-axes[0,1].set_xlabel(r'$\Delta_b$')
-axes[1,0].set_xlabel(r'$\Delta_b$')
-axes[1,1].set_xlabel(r'$\Delta_b$')
-axes[2,0].set_xlabel(r'$\Delta_b$')
-axes[2,1].set_xlabel(r'$\Delta_b$')
-#axes[0,1].set_ylim(0,5)
-#axes[1,0].set_ylim(0,2)
-#axes[1,1].set_ylim(0,2)
-#axes[2,0].set_ylim(0,2)
-axes[0,0].plot(DeltaB,data[...,4],linestyle='-.')
-axes[0,1].plot(DeltaB,data[...,5],linestyle='-.')
-axes[1,0].plot(DeltaB,data[...,8],linestyle='-.')
-axes[1,1].plot(DeltaB,data[...,6],linestyle='-.')
-axes[2,0].plot(DeltaB,data[...,7],linestyle='-.')
-axes[2,1].plot(DeltaB,data[...,0],linestyle='-.')
-axes[0,0].set_ylabel(r'$g_2ab$')
-axes[0,1].set_ylabel(r'$g_2ac$')
-axes[1,0].set_ylabel(r'$g_2a$')
-axes[1,1].set_ylabel(r'$g_2b$')
-axes[2,0].set_ylabel(r'$g_2c$')
-axes[2,1].set_ylabel(r'$t_max$')
-fig.savefig('imgs/otherData_g_'+str(g)+'_Ea_'+str(Ea)+'_DeltaB_'+str(DeltaB[0])+'-'+str(DeltaB[-1])+'.svg',dpi=600,format='svg',bbox_inches='tight')
+fig = plt.figure(figsize=(12,18))
+axes=[]
+for i in range(0,6):
+    axes.append(fig.add_subplot(3, 2, i+1))
+    ax_s=axes[i].contourf(DeltaB,Ea,data[:,:,(i+3)%9],cmap=cm.coolwarm)
+    ax_ss=axes[i].contour(DeltaB,Ea,data[:,:,(i+3)%9],ax_s.levels)
+    axes[i].clabel(ax_ss, ax_ss.levels, inline=True)
+    axes[i].set_xlabel(r'$\Delta_b$')
+    axes[0].set_ylabel(r'$E_a$')
+    fig.colorbar(ax_s,ax=axes[i],pad=0.1)
+axes[0].set_ylabel(r'$[g_2ab]E_a$')
+axes[1].set_ylabel(r'$[g_2ac]E_a$')
+axes[2].set_ylabel(r'$[g_2a]E_a$')
+axes[3].set_ylabel(r'$[g_2b]E_a$')
+axes[4].set_ylabel(r'$[g_2c]E_a$')
+axes[5].set_ylabel(r'$[t_max]E_a$')
+fig.savefig('imgs/otherData_g_'+str(g)+'_Ea_'+str(Ea[0])+'-'+str(Ea[-1])+'_DeltaB_'+str(DeltaB[0])+'-'+str(DeltaB[-1])+'.svg',dpi=600,format='svg',bbox_inches='tight')
 
