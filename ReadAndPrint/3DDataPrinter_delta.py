@@ -44,8 +44,8 @@ fig = plt.figure(figsize=(12,18))
 axes=[]
 for i in range(0,6):
     axes.append(fig.add_subplot(3, 2, i+1))
-    ax_s=axes[i].contourf(DeltaB,Ea,data[:,:,(i+3)%9],cmap=cm.coolwarm)
-    ax_ss=axes[i].contour(DeltaB,Ea,data[:,:,(i+3)%9],ax_s.levels)
+    ax_s=axes[i].contourf(DeltaB,Ea,data[:,:,(i+4)%9],cmap=cm.coolwarm)
+    ax_ss=axes[i].contour(DeltaB,Ea,data[:,:,(i+4)%9],ax_s.levels)
     axes[i].clabel(ax_ss, ax_ss.levels, inline=True)
     axes[i].set_xlabel(r'$\Delta_b$')
     axes[0].set_ylabel(r'$E_a$')

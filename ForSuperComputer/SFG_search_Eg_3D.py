@@ -66,43 +66,41 @@ def SearchForMax(array:list):
 #parameters
 kappa_a=2;kappa_b=2;kappa_c=2
 psi0_l=[0,3,0]
-Ea=10
-g=np.linspace(0.1,4,40)
-Ntraj=100
+Ea=np.linspace(0.1,1,3)
+g=np.linspace(0.1,4,3)
 DeltaB=0
+Ntraj=100
 tlist=np.linspace(0,20,2000)
 opts=Options()
 opts.store_states=True
-opts.rhs_reuse=True
-#opts.use_openmp=True
+#opts.rhs_reuse=True
 
 #data storage
-data=np.zeros([np.size(g),9])
+data=np.zeros([np.size(Ea),np.size(g),9])
 
 #solve for data
 if __name__=="__main__":
-    for j in range(0,np.size(g)):
-        op=BuildOperator_Exact(Ea,DeltaB,g[j])
-        output=mcsolve(op['Hamilton'],op['Initial_state'],tlist,op['Collapse'],op['track'],ntraj=Ntraj,options=opts)
-        maxIndex=SearchForMax(output.expect[1])
-        data[j][0]=tlist[maxIndex]  #t
-        data[j][1]=output.expect[0][maxIndex]   #Nb
-        data[j][2]=output.expect[1][maxIndex]   #Nc
-        data[j][3]=output.expect[2][maxIndex]   #Na
-        rho=output.states[0][maxIndex]*output.states[0][maxIndex].dag()
-        for k in range(1,Ntraj):
-            rho+=output.states[k][maxIndex]*output.states[k][maxIndex].dag()
-        rho=1/Ntraj*rho
-        rho_bc=rho.ptrace([1,2])
-        data[j][4]=entropy_vn(rho_bc) #(A,BC) Entanglement
-        data[j][5]=expect(op['Ideal_state'],rho_bc) #Fidelity
-        data[j][6]=output.expect[3][maxIndex]/(data[j][1]*data[j][1]) #g2b
-        data[j][7]=output.expect[4][maxIndex]/(data[j][2]*data[j][2]) #g2c
-        data[j][8]=output.expect[5][maxIndex]/(data[j][1]*data[j][2]) #g2bc
+    for i in range(0,np.size(Ea)):
+        for j in range(0,np.size(g)):
+            op=BuildOperator_Exact(Ea[i],DeltaB,g[j])
+            output=mcsolve(op['Hamilton'],op['Initial_state'],tlist,op['Collapse'],op['track'],ntraj=Ntraj,options=opts)
+            maxIndex=SearchForMax(output.expect[1])
+            data[i][j][0]=tlist[maxIndex]  #t
+            data[i][j][1]=output.expect[0][maxIndex]   #Nb
+            data[i][j][2]=output.expect[1][maxIndex]   #Nc
+            data[i][j][3]=output.expect[2][maxIndex]   #Na
+            rho=output.states[0][maxIndex]*output.states[0][maxIndex].dag()
+            for k in range(1,Ntraj):
+                rho+=output.states[k][maxIndex]*output.states[k][maxIndex].dag()
+            rho=1/Ntraj*rho
+            rho_bc=rho.ptrace([1,2])
+            data[i][j][4]=entropy_vn(rho_bc) #(A,BC) Entanglement
+            data[i][j][5]=expect(op['Ideal_state'],rho_bc) #Fidelity
+            data[i][j][6]=output.expect[3][maxIndex]/(data[i][j][1]*data[i][j][1]) #g2b
+            data[i][j][7]=output.expect[4][maxIndex]/(data[i][j][2]*data[i][j][2]) #g2c
+            data[i][j][8]=output.expect[5][maxIndex]/(data[i][j][1]*data[i][j][2]) #g2bc
 
 #save data
-np.savetxt('Data/EgData_DeltaB_'+str(DeltaB)+'_Ea_'+str(Ea)+'_g_'+str(g[0])+'-'+str(g[-1])+'.txt',data)
-np.save('Data/EgData_DeltaB_'+str(DeltaB)+'_Ea_'+str(Ea)+'_g_'+str(g[0])+'-'+str(g[-1])+'.npy',data)
-
-
+#np.savetxt('Data/population_g_'+str(g)+'_Ea_'+str(Ea[0])+'-'+str(Ea[-1])+'_DeltaB_'+str(DeltaB[0])+'-'+str(DeltaB[-1])+'.txt',data)
+np.save('Data/EgData3D_DeltaB_'+str(DeltaB)+'_Ea_'+str(Ea[0])+'-'+str(Ea[-1])+'_g_'+str(g[0])+'-'+str(g[-1])+'.npy',data)
 
