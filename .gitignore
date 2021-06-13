@@ -13,6 +13,7 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 Data
+ForSuperComputer/Data
 imgs
 
 # Mono auto generated files
