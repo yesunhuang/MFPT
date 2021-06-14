@@ -73,7 +73,7 @@ DeltaB=0
 tlist=np.linspace(0,20,2000)
 opts=Options()
 opts.store_states=True
-opts.rhs_reuse=True
+#opts.rhs_reuse=True
 #opts.use_openmp=True
 
 #data storage
