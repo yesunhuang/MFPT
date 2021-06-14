@@ -68,7 +68,7 @@ kappa_a=2;kappa_b=2;kappa_c=2
 psi0_l=[0,3,0]
 Ea=10
 g=np.linspace(0.1,4,40)
-Ntraj=5000
+Ntraj=2000
 DeltaB=0
 tlist=np.linspace(0,20,2000)
 opts=Options()

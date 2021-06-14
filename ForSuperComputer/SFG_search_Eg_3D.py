@@ -66,11 +66,11 @@ def SearchForMax(array:list):
 #parameters
 kappa_a=2;kappa_b=2;kappa_c=2
 psi0_l=[0,3,0]
-Ea=np.linspace(0.1,1,3)
-g=np.linspace(0.1,4,3)
+Ea=np.linspace(4,10,10)
+g=np.linspace(0.1,4,10)
 DeltaB=0
-Ntraj=100
-tlist=np.linspace(0,20,2000)
+Ntraj=2000
+tlist=np.linspace(0,10,1000)
 opts=Options()
 opts.store_states=True
 #opts.rhs_reuse=True
