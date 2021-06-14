@@ -66,7 +66,7 @@ def SearchForMax(array:list):
 #parameters
 kappa_a=2;kappa_b=2;kappa_c=2
 psi0_l=[0,3,0]
-Ea=10
+Ea=5
 g=np.linspace(0.1,4,40)
 Ntraj=2000
 DeltaB=0
