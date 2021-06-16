@@ -39,14 +39,15 @@ def BuildOperator_Exact(Ea:float,DeltaB:float,g:float):
     c_ops.append(np.sqrt(kappa_a)*a)
     c_ops.append(np.sqrt(kappa_b)*b)
     c_ops.append(np.sqrt(kappa_c)*c)
-    psiIdeal=tensor(basis(Nb,psi0_l[2]),basis(Nc,psi0_l[1]))
+    psiIdeal=tensor(qeye(Na),basis(Nb,psi0_l[2]),basis(Nc,psi0_l[1]))
     idealState=psiIdeal*psiIdeal.dag()
     operator={'Hamilton':H,'Collapse':c_ops,'Initial_state':psi0,'Ideal_state':idealState,'track':[b.dag()*b,\
                                                                                                    c.dag()*c,\
                                                                                                    a.dag()*a,\
                                                                                                    b.dag()*b.dag()*b*b,\
                                                                                                    c.dag()*c.dag()*c*c,\
-                                                                                                   b.dag()*c.dag()*b*c]}
+                                                                                                   b.dag()*c.dag()*b*c,\
+                                                                                                   idealState]}
     return operator
 
 '''
@@ -66,13 +67,13 @@ def SearchForMax(array:list):
 #parameters
 kappa_a=2;kappa_b=2;kappa_c=2
 psi0_l=[0,3,0]
-Ea=np.linspace(4,10,10)
-g=np.linspace(0.1,4,10)
+Ea=np.linspace(1,10,20)
+g=np.linspace(0.1,4,20)
 DeltaB=0
 Ntraj=2000
 tlist=np.linspace(0,10,1000)
 opts=Options()
-opts.store_states=True
+#opts.store_states=True
 #opts.rhs_reuse=True
 
 #data storage
@@ -89,13 +90,15 @@ if __name__=="__main__":
             data[i][j][1]=output.expect[0][maxIndex]   #Nb
             data[i][j][2]=output.expect[1][maxIndex]   #Nc
             data[i][j][3]=output.expect[2][maxIndex]   #Na
+            '''
             rho=output.states[0][maxIndex]*output.states[0][maxIndex].dag()
             for k in range(1,Ntraj):
                 rho+=output.states[k][maxIndex]*output.states[k][maxIndex].dag()
             rho=1/Ntraj*rho
             rho_bc=rho.ptrace([1,2])
             data[i][j][4]=entropy_vn(rho_bc) #(A,BC) Entanglement
-            data[i][j][5]=expect(op['Ideal_state'],rho_bc) #Fidelity
+            '''
+            data[i][j][5]=output.expect[6][maxIndex] #Fidelity
             data[i][j][6]=output.expect[3][maxIndex]/(data[i][j][1]*data[i][j][1]) #g2b
             data[i][j][7]=output.expect[4][maxIndex]/(data[i][j][2]*data[i][j][2]) #g2c
             data[i][j][8]=output.expect[5][maxIndex]/(data[i][j][1]*data[i][j][2]) #g2bc
