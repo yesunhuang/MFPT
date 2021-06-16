@@ -73,7 +73,7 @@ DeltaB=0
 Ntraj=2000
 tlist=np.linspace(0,10,1000)
 opts=Options()
-#opts.store_states=True
+opts.store_states=False
 #opts.rhs_reuse=True
 
 #data storage
