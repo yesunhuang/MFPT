@@ -73,7 +73,7 @@ Ntraj=2000
 DeltaB=0
 tlist=np.linspace(0,20,2000)
 opts=Options()
-#opts.store_states=True
+opts.store_states=False
 #opts.rhs_reuse=True
 #opts.use_openmp=True
 
