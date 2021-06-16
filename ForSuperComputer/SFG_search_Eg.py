@@ -39,14 +39,15 @@ def BuildOperator_Exact(Ea:float,DeltaB:float,g:float):
     c_ops.append(np.sqrt(kappa_a)*a)
     c_ops.append(np.sqrt(kappa_b)*b)
     c_ops.append(np.sqrt(kappa_c)*c)
-    psiIdeal=tensor(basis(Nb,psi0_l[2]),basis(Nc,psi0_l[1]))
+    psiIdeal=tensor(qeye(Na),basis(Nb,psi0_l[2]),basis(Nc,psi0_l[1]))
     idealState=psiIdeal*psiIdeal.dag()
     operator={'Hamilton':H,'Collapse':c_ops,'Initial_state':psi0,'Ideal_state':idealState,'track':[b.dag()*b,\
                                                                                                    c.dag()*c,\
                                                                                                    a.dag()*a,\
                                                                                                    b.dag()*b.dag()*b*b,\
                                                                                                    c.dag()*c.dag()*c*c,\
-                                                                                                   b.dag()*c.dag()*b*c]}
+                                                                                                   b.dag()*c.dag()*b*c,\
+                                                                                                   idealState]}
     return operator
 
 '''
@@ -72,7 +73,7 @@ Ntraj=2000
 DeltaB=0
 tlist=np.linspace(0,20,2000)
 opts=Options()
-opts.store_states=True
+#opts.store_states=True
 #opts.rhs_reuse=True
 #opts.use_openmp=True
 
@@ -89,13 +90,15 @@ if __name__=="__main__":
         data[j][1]=output.expect[0][maxIndex]   #Nb
         data[j][2]=output.expect[1][maxIndex]   #Nc
         data[j][3]=output.expect[2][maxIndex]   #Na
+        '''
         rho=output.states[0][maxIndex]*output.states[0][maxIndex].dag()
         for k in range(1,Ntraj):
             rho+=output.states[k][maxIndex]*output.states[k][maxIndex].dag()
         rho=1/Ntraj*rho
         rho_bc=rho.ptrace([1,2])
         data[j][4]=entropy_vn(rho_bc) #(A,BC) Entanglement
-        data[j][5]=expect(op['Ideal_state'],rho_bc) #Fidelity
+        '''
+        data[j][5]=output.expect[6][maxIndex] #Fidelity
         data[j][6]=output.expect[3][maxIndex]/(data[j][1]*data[j][1]) #g2b
         data[j][7]=output.expect[4][maxIndex]/(data[j][2]*data[j][2]) #g2c
         data[j][8]=output.expect[5][maxIndex]/(data[j][1]*data[j][2]) #g2bc
