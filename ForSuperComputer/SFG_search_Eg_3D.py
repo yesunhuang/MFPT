@@ -85,6 +85,7 @@ if __name__=="__main__":
         for j in range(0,np.size(g)):
             op=BuildOperator_Exact(Ea[i],DeltaB,g[j])
             output=mcsolve(op['Hamilton'],op['Initial_state'],tlist,op['Collapse'],op['track'],ntraj=Ntraj,options=opts)
+            print(str(Ea[i])+'-'+str(g[j]))
             maxIndex=SearchForMax(output.expect[1])
             data[i][j][0]=tlist[maxIndex]  #t
             data[i][j][1]=output.expect[0][maxIndex]   #Nb
