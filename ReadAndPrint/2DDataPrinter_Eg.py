@@ -10,7 +10,7 @@ from matplotlib.pyplot import MultipleLocator
 import time
 
 #load data
-Ea=1
+Ea=5
 DeltaB=0
 g_s=0.1;g_e=4.0
 data=np.load('Data/EgData_DeltaB_'+str(DeltaB)+'_Ea_'+str(Ea)+'_g_'+str(g_s)+'-'+str(g_e)+'.npy')
